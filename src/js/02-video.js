@@ -24,20 +24,14 @@ const player = new Player(iframe);
 player.on('timeupdate', throttle(onPlay, 1000));
 
 function onPlay(e) {
-  console.log(e.seconds);
   const time = e.seconds;
   localStorage.setItem('videoplayer-current-time', time);
 }
 
-player.getVideoTitle().then(function (title) {
-  console.log('title:', title);
-});
+const currentTime = localStorage.getItem('videoplayer-current-time');
 
-const currentTame = localStorage.getItem('videoplayer-current-time');
-const startTame = JSON.parse(currentTame);
-console.log(startTame);
 player
-  .setCurrentTime(currentTame)
+  .setCurrentTime(currentTime)
   .then(function (seconds) {})
   .catch(function (error) {
     switch (error.name) {

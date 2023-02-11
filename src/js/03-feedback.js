@@ -8,39 +8,67 @@
 // 4.Зроби так, щоб сховище оновлювалось не частіше, ніж раз на 500 мілісекунд.
 //  Для цього додай до проекту і використовуй бібліотеку lodash.throttle.
 
+// import throttle from 'lodash.throttle';
+
+// const STORAGE_KEY = 'feedback-form-state';
+// const formData = {};
+
+// const formEl = document.querySelector('.feedback-form');
+// // const textareaEl = document.querySelector('.feedback-form textarea');
+
+// formEl.addEventListener('submit', onFormSubmit);
+// formEl.addEventListener('input', throttle(onTextareaInput, 500));
+// formEl.addEventListener('input', event => {
+//   formData[event.target.name] = event.target.value;
+//   localStorage.setItem(STORAGE_KEY, message);
+// });
+
+// populateTextarea();
+
+// function onFormSubmit(event) {
+//   event.preventDefault();
+//   console.log(formData);
+//   event.currentTarget.reset();
+//   localStorage.removeItem(STORAGE_KEY);
+// }
+
+// function populateTextarea() {
+//   const savedMessage = localStorage.getItem(STORAGE_KEY);
+//   if (savedMessage) {
+//     textareaEl.value = savedMessage;
+//   }
+// }
+// ==========================================================================
 import throttle from 'lodash.throttle';
 
+const form = document.querySelector('.feedback-form');
 const STORAGE_KEY = 'feedback-form-state';
-const formData = {};
 
-const formEl = document.querySelector('.feedback-form');
-const textareaEl = document.querySelector('.feedback-form textarea');
+const saveData = {};
+onSetInput();
 
-formEl.addEventListener('submit', onFormSubmit);
-textareaEl.addEventListener('input', throttle(onTextareaInput, 500));
-formEl.addEventListener('input', event => {
-  //   console.log(event.target.name);
-  //   console.log(event.target.value);
-  formData[event.target.name] = event.target.value;
-  console.log(formData);
-});
-
-populateTextarea();
-
-function onFormSubmit(event) {
-  event.preventDefault();
-  console.log('Отправляем форму');
-  event.currentTarget.reset();
-  localStorage.removeItem(STORAGE_KEY);
-}
+form.addEventListener('submit', onFormSubmit);
+form.addEventListener('input', throttle(onTextareaInput, 500));
 
 function onTextareaInput(event) {
-  const message = event.target.value;
-  localStorage.setItem(STORAGE_KEY, message);
+  saveData[event.target.name] = event.target.value;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData));
 }
-function populateTextarea() {
-  const savedMessage = localStorage.getItem(STORAGE_KEY);
-  if (savedMessage) {
-    textareaEl.value = savedMessage;
+
+function onSetInput() {
+  let getInput = localStorage.getItem(STORAGE_KEY);
+  if (getInput) {
+    getInput = JSON.parse(getInput);
+    Object.entries(getInput).forEach(([name, value]) => {
+      saveData[name] = value;
+      form.elements[name].value = value;
+    });
   }
+}
+function onFormSubmit(event) {
+  event.preventDefault();
+  const formData = new FormData(form);
+  formData.forEach((value, name) => console.log(`${name}:`, value));
+  event.currentTarget.reset();
+  localStorage.removeItem(STORAGE_KEY);
 }
